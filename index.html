@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Personal Growth Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    margin: 0;
+    min-height: 100vh;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 0.15em;
+    color: #4a4e69;
+  }
+
+  #quote {
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #22223b;
+    margin-top: 6px;
+    min-height: 2em;
+    max-width: 600px;
+  }
+
+  main {
+    max-width: 900px;
+    width: 100%;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.2);
+    padding: 25px 30px 40px;
+  }
+
+  section {
+    margin-bottom: 30px;
+  }
+
+  h2 {
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #22223b;
+  }
+
+  /* Form to add goals */
+  #goalForm {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  #goalForm input, #goalForm select, #goalForm button {
+    font-size: 1rem;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 2px solid #9a8c98;
+    transition: border-color 0.25s;
+  }
+
+  #goalForm input:focus, #goalForm select:focus {
+    outline: none;
+    border-color: #4a4e69;
+  }
+
+  #goalForm input[type=text] {
+    flex-grow: 1;
+    min-width: 200px;
+  }
+
+  #goalForm button {
+    background: #9a8c98;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  #goalForm button:hover {
+    background: #4a4e69;
+  }
+  
+  /* Goals container */
+  #goals {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .goal-card {
+    background: #f2e9e4;
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 8px 16px rgba(75,78,105,0.1);
+  }
+
+  .goal-title {
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+    color: #4a4e69;
+  }
+
+  /* Progress bar container */
+  .progress-bar-bg {
+    background: #d6cbd3;
+    border-radius: 12px;
+    overflow: hidden;
+    height: 18px;
+    margin-bottom: 8px;
+  }
+
+  .progress-bar-fill {
+    height: 18px;
+    border-radius: 12px;
+    background: #9a8c98;
+    transition: width 0.4s ease;
+  }
+
+  /* Progress text */
+  .progress-text {
+    font-size: 0.9rem;
+    color: #4a4e69;
+    margin-bottom: 10px;
+  }
+
+  /* Habit streak styling */
+  .streak-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.1rem;
+    color: #9a8c98;
+  }
+
+  .streak-badge {
+    background: #4a4e69;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-weight: 700;
+    user-select:none;
+  }
+
+  /* Button in goal card */
+  .update-btn {
+    background: #4a4e69;
+    color: white;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .update-btn:hover {
+    background: #22223b;
+  }
+
+  .remove-btn {
+    background: #e76f51;
+    color: white;
+    padding: 6px 14px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: 14px;
+    transition: background 0.3s;
+  }
+  .remove-btn:hover {
+    background: #d65a35;
+  }
+  
+  /* Modal overlay */
+  #modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right:0;
+    bottom:0;
+    background: rgba(0,0,0,0.5);
+    display:none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  #modalContent {
+    background: white;
+    border-radius: 20px;
+    max-width: 400px;
+    width: 90%;
+    padding: 25px 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  
+  #modalContent h3 {
+    margin-bottom: 16px;
+    color: #4a4e69;
+  }
+  
+  #modalContent button {
+    background: #4a4e69;
+    color: white;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+  #modalContent button:hover {
+    background: #22223b;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    main {
+      padding: 20px 20px 30px;
+    }
+    h1 {
+      font-size: 2rem;
+    }
+  }
+
+</style>
+</head>
+<body>
+  <header>
+    <h1>Personal Growth Tracker</h1>
+    <div id="quote" aria-live="polite" aria-atomic="true" aria-label="Inspirational quote"></div>
+  </header>
+  <main role="main">
+    <section aria-labelledby="addGoalHeading">
+      <h2 id="addGoalHeading">Set a New Goal</h2>
+      <form id="goalForm" aria-describedby="goalFormDesc" aria-label="Form to add a new personal growth goal">
+        <p id="goalFormDesc" style="color:#9a8c98; margin-bottom:14px;">Define your goal, type, and target/progress.</p>
+        <input type="text" id="goalName" name="goalName" placeholder="Goal name (e.g. Read Books)" required aria-required="true" aria-label="Goal name" autocomplete="off" />
+        <select id="goalType" name="goalType" aria-label="Select goal type" required>
+          <option value="" disabled selected>Select goal type</option>
+          <option value="progress">Track Progress (e.g. pages read)</option>
+          <option value="habit">Habit Streak (e.g. Meditate daily)</option>
+        </select>
+        <input type="number" id="goalTarget" name="goalTarget" placeholder="Target amount (for progress goals)" min="1" aria-label="Target amount for progress goal"/>
+        <button type="submit" aria-label="Add goal">Add Goal</button>
+      </form>
+    </section>
+
+    <section id="goalsSection" aria-labelledby="goalsHeading">
+      <h2 id="goalsHeading">Your Goals</h2>
+      <div id="goals" aria-live="polite" aria-atomic="true" aria-label="List of your personal growth goals">
+        <!-- Goal cards dynamically inserted here -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal for goal updates -->
+  <div id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+    <div id="modalContent">
+      <h3 id="modalTitle">Update Goal Progress</h3>
+      <p id="modalDesc" style="margin-bottom:14px;">Enter your progress for the selected goal.</p>
+      <input type="number" id="progressInput" min="0" style="width: 100%; font-size: 1rem; padding: 8px 12px; border-radius: 10px; border: 2px solid #9a8c98;" aria-label="Progress input" />
+      <div style="margin-top:14px;">
+        <button id="saveProgressBtn" aria-label="Save progress">Save</button>
+        <button id="cancelProgressBtn" aria-label="Cancel progress update" style="margin-left: 10px; background: #e76f51;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  (() => {
+    // Inspirational quotes array
+    const quotes = [
+      "“The journey of a thousand miles begins with one step.” – Lao Tzu",
+      "“What you get by achieving your goals is not as important as what you become by achieving your goals.” – Zig Ziglar",
+      "“Don’t watch the clock; do what it does. Keep going.” – Sam Levenson",
+      "“Success is the sum of small efforts, repeated day-in and day-out.” – Robert Collier",
+      "“You don’t have to be great to start, but you have to start to be great.” – Zig Ziglar",
+      "“Motivation is what gets you started. Habit is what keeps you going.” – Jim Ryun",
+      "“Believe you can and you're halfway there.” – Theodore Roosevelt",
+      "“Discipline is the bridge between goals and accomplishment.” – Jim Rohn",
+      "“Small daily improvements over time lead to stunning results.” – Robin Sharma",
+      "“The only limit to our realization of tomorrow will be our doubts of today.” – Franklin D. Roosevelt"
+    ];
+
+    // DOM Elements
+    const quoteEl = document.getElementById('quote');
+    const goalForm = document.getElementById('goalForm');
+    const goalsContainer = document.getElementById('goals');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const progressInput = document.getElementById('progressInput');
+    const saveProgressBtn = document.getElementById('saveProgressBtn');
+    const cancelProgressBtn = document.getElementById('cancelProgressBtn');
+
+    // State
+    let goals = JSON.parse(localStorage.getItem('goals') || '[]');
+    let currentUpdateGoalId = null;
+
+    // Show rotating inspirational quotes
+    let currentQuoteIndex = 0;
+    function showQuote() {
+      quoteEl.textContent = quotes[currentQuoteIndex];
+      currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+    }
+    showQuote();
+    setInterval(showQuote, 8000);
+
+    // Helper: Save goals to localStorage
+    function saveGoals() {
+      localStorage.setItem('goals', JSON.stringify(goals));
+    }
+
+    // Render goals list
+    function renderGoals() {
+      goalsContainer.innerHTML = '';
+      if (goals.length === 0) {
+        goalsContainer.innerHTML = '<p style="color:#9a8c98; font-style:italic;">You have no goals set yet. Start by adding one above!</p>';
+        return;
+      }
+
+      goals.forEach(goal => {
+        const card = document.createElement('article');
+        card.className = 'goal-card';
+        card.setAttribute('role', 'region');
+        card.setAttribute('aria-label', `Goal: ${goal.name}`);
+
+        const title = document.createElement('h3');
+        title.className = 'goal-title';
+        title.textContent = goal.name;
+        card.appendChild(title);
+
+        if (goal.type === 'progress') {
+          // Progress bar
+          const progressText = document.createElement('p');
+          progressText.className = 'progress-text';
+          progressText.textContent = `Progress: ${goal.progress}/${goal.target}`;
+          card.appendChild(progressText);
+
+          const progressBarBg = document.createElement('div');
+          progressBarBg.className = 'progress-bar-bg';
+          const progressBarFill = document.createElement('div');
+          progressBarFill.className = 'progress-bar-fill';
+          const pct = Math.min(100, (goal.progress / goal.target) * 100);
+          progressBarFill.style.width = pct + '%';
+          // Change color based on progress
+          if(pct >= 100) {
+            progressBarFill.style.backgroundColor = '#4caf50';
+          } else if(pct >= 50) {
+            progressBarFill.style.backgroundColor = '#ffb545';
+          } else {
+            progressBarFill.style.backgroundColor = '#9a8c98';
+          }
+          progressBarBg.appendChild(progressBarFill);
+          card.appendChild(progressBarBg);
+
+          // Update button
+          const updateBtn = document.createElement('button');
+          updateBtn.className = 'update-btn';
+          updateBtn.textContent = 'Update Progress';
+          updateBtn.setAttribute('aria-label', `Update progress for goal ${goal.name}`);
+          updateBtn.addEventListener('click', () => openUpdateModal(goal.id));
+          card.appendChild(updateBtn);
+
+        } else if (goal.type === 'habit') {
+          // Display habit streak
+          const streakContainer = document.createElement('div');
+          streakContainer.className = 'streak-container';
+          streakContainer.innerHTML = `<span>Current Streak:</span> <span class="streak-badge" aria-label="Habit streak of ${goal.streak} days">${goal.streak} days</span>`;
+          card.appendChild(streakContainer);
+
+          // Update button
+          const updateBtn = document.createElement('button');
+          updateBtn.className = 'update-btn';
+          updateBtn.textContent = 'Mark Today';
+          updateBtn.setAttribute('aria-label', `Mark today completed for habit ${goal.name}`);
+          updateBtn.addEventListener('click', () => markHabitToday(goal.id));
+          card.appendChild(updateBtn);
+        }
+
+        // Remove button
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-btn';
+        removeBtn.textContent = 'Remove Goal';
+        removeBtn.setAttribute('aria-label', `Remove goal ${goal.name}`);
+        removeBtn.addEventListener('click', () => removeGoal(goal.id));
+        card.appendChild(removeBtn);
+
+        goalsContainer.appendChild(card);
+      });
+    }
+
+    // Generate unique id for goals - simple incremental id
+    function generateGoalId() {
+      return Date.now() + '-' + Math.floor(Math.random()*9999);
+    }
+
+    // Add new goal
+    goalForm.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const name = goalForm.goalName.value.trim();
+      const type = goalForm.goalType.value;
+      let target = parseInt(goalForm.goalTarget.value, 10);
+
+      if(!name) {
+        alert('Please enter a goal name.');
+        return;
+      }
+
+      if (!type) {
+        alert('Please select a goal type.');
+        return;
+      }
+
+      if(type === 'progress' && (!target || target <= 0)) {
+        alert('Please enter a valid target amount for progress goals.');
+        return;
+      }
+
+      if(type === 'habit') {
+        target = 0; // no target needed
+      }
+
+      const newGoal = {
+        id: generateGoalId(),
+        name,
+        type,
+        target: type === 'progress' ? target : 0,
+        progress: 0,
+        streak: 0,
+        lastMarkedDate: null,
+      };
+
+      goals.push(newGoal);
+      saveGoals();
+      renderGoals();
+
+      goalForm.reset();
+      // Hide target input for habit reset to initial state
+      toggleTargetInput();
+
+      promptGoalSettingMessage(name);
+    });
+
+    // Toggle target input visibility based on goal type selection
+    const goalTypeSelect = goalForm.goalType;
+    const goalTargetInput = goalForm.goalTarget;
+
+    function toggleTargetInput() {
+      if(goalTypeSelect.value === 'progress') {
+        goalTargetInput.disabled = false;
+        goalTargetInput.required = true;
+        goalTargetInput.style.opacity = '1';
+      } else {
+        goalTargetInput.disabled = true;
+        goalTargetInput.required = false;
+        goalTargetInput.style.opacity = '0.5';
+        goalTargetInput.value = '';
+      }
+    }
+
+    goalTypeSelect.addEventListener('change', toggleTargetInput);
+    toggleTargetInput();
+
+    // Open modal for progress update
+    function openUpdateModal(goalId) {
+      currentUpdateGoalId = goalId;
+      const goal = goals.find(g => g.id === goalId);
+      if (!goal) return;
+
+      if(goal.type === 'progress') {
+        progressInput.type = 'number';
+        progressInput.min = 0;
+        progressInput.value = goal.progress;
+      } else {
+        progressInput.type = 'text';
+        progressInput.value = '';
+      }
+
+      modalOverlay.style.display = 'flex';
+      progressInput.focus();
+    }
+
+    // Close modal
+    function closeModal() {
+      modalOverlay.style.display = 'none';
+      progressInput.value = '';
+      currentUpdateGoalId = null;
+    }
+
+    // Save progress from modal
+    saveProgressBtn.addEventListener('click', () => {
+      if(!currentUpdateGoalId) return;
+      const goal = goals.find(g => g.id === currentUpdateGoalId);
+      if(!goal) return;
+
+      const val = Number(progressInput.value);
+      if(goal.type === 'progress') {
+        if(isNaN(val) || val < 0) {
+          alert('Please enter a valid non-negative number.');
+          return;
+        }
+        goal.progress = Math.min(val, goal.target);
+      }
+      closeModal();
+      saveGoals();
+      renderGoals();
+    });
+
+    cancelProgressBtn.addEventListener('click', closeModal);
+
+    // Remove goal
+    function removeGoal(goalId) {
+      const idx = goals.findIndex(g => g.id === goalId);
+      if(idx !== -1) {
+        if(confirm(`Are you sure you want to remove the goal "${goals[idx].name}"?`)) {
+          goals.splice(idx,1);
+          saveGoals();
+          renderGoals();
+        }
+      }
+    }
+
+    // Mark habit as done today
+    function markHabitToday(goalId) {
+      const goal = goals.find(g => g.id === goalId);
+      if(!goal) return;
+
+      const todayStr = new Date().toISOString().slice(0,10);
+      if(goal.lastMarkedDate === todayStr) {
+        alert('You already marked today as completed for this habit.');
+        return;
+      }
+      
+      // Check if yesterday was marked to continue streak, else reset streak to 1
+      if(goal.lastMarkedDate) {
+        const lastDateObj = new Date(goal.lastMarkedDate);
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        if(lastDateObj.toISOString().slice(0,10) === yesterday.toISOString().slice(0,10)) {
+          goal.streak += 1;
+        } else {
+          goal.streak = 1;
+        }
+      } else {
+        goal.streak = 1;
+      }
+      goal.lastMarkedDate = todayStr;
+      saveGoals();
+      renderGoals();
+    }
+
+    // Show goal setting prompt (modal)
+    function promptGoalSettingMessage(goalName) {
+      alert(`Goal "${goalName}" added! Keep up the great work!`);
+    }
+
+    // Initial render
+    renderGoals();
+
+  })();
+</script>
+
+</body>
+</html>
+
+
